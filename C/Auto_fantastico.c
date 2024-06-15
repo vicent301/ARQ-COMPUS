@@ -3,7 +3,10 @@
 #include <stdbool.h>
 #include <time.h>
 #include <unistd.h>
-#include <wiringPi.h> // Biblioteca para Raspberry Pi GPIO
+#include <termios.h>
+#include <wiringPi.h>
+#include "EasyPIO.h"
+ // Biblioteca para Raspberry Pi GPIO
 
 const unsigned char led[] = {14, 15, 18, 23, 24, 25, 8, 7};
 int delayTime[] = {100, 100, 100, 100}; // Retardo en milisegundos
