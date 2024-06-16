@@ -23,6 +23,8 @@ void choque();
 
 void sirena();
 
+void secuencia_formula1();
+
 struct termios modifyTerminalConfig(void);
 
 void restoreTerminalConfig(struct termios);
@@ -127,7 +129,7 @@ void menu() {
         printf("1: Auto Fantastico\n");
         printf("2: El Choque\n");
         printf("3: Sirena\n");
-        printf("4: FUNCION VACIA\n");
+        printf("4: Formula 1\n");
         printf("0: Salir\n");
         scanf("%d", &opcion);
 
@@ -142,7 +144,7 @@ void menu() {
                 sirena();
                 break;
             case 4:
-                sirena();
+                secuencia_formula1();
                 break;
             case 0:
                 break;
@@ -187,165 +189,214 @@ void autoFantastico() {
 
     }
 }
-    void choque() {
-        printf("Presione esc para finalizar la secuencia\n");
-        printf("Presione W para aumentar la velocidad\n");
-        printf("Presione S para disminuir la velocidad\n");
-        printf("Choque:\n");
+void choque() {
+    printf("Presione esc para finalizar la secuencia\n");
+    printf("Presione W para aumentar la velocidad\n");
+    printf("Presione S para disminuir la velocidad\n");
+    printf("Choque:\n");
 
-        unsigned char output, aux1, aux2;
+    unsigned char output, aux1, aux2;
 
-        while (true) {
-            aux1 = 0x80;
-            aux2 = 0x1;
-            for (int i = 0; i < 7; i++) {
-                output = aux1 | aux2;
-                ledShow(output);
-                disp_binary(output);
-                aux1 = aux1 >> 1;
-                aux2 = aux2 << 1;
+    while (true) {
+        aux1 = 0x80;
+        aux2 = 0x1;
+        for (int i = 0; i < 7; i++) {
+            output = aux1 | aux2;
+            ledShow(output);
+            disp_binary(output);
+            aux1 = aux1 >> 1;
+            aux2 = aux2 << 1;
 
-                if (delay(1) == 0) {
-                    turnOff();
-                    return;
-                }
-            }
-
-        }
-
-    }
-
-    void sirena() {
-        printf("Presione esc para finalizar la secuencia\n");
-        printf("Presione W para aumentar la velocidad\n");
-        printf("Presione S para disminuir la velocidad\n");
-        printf("Shift Lights:\n");
-
-        unsigned char sirena[] = {0x0, 0xF, 0xF, 0xF0, 0xF0, 0x0, 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80, 0x40, 0x20, 0x10, 0x8, 0x4, 0x2, 0x1};
-
-        while (true) {
-            int i;
-
-            for(i = 0 ; i < 21 ; i++)
-            {
-                ledShow(sirena[i]);
-                disp_binary(sirena[i]);
-                if (delay(3) == 0) {
-                    turnOff();
-                    return;
-                }
+            if (delay(1) == 0) {
+                turnOff();
+                return;
             }
         }
 
     }
 
-    struct termios modifyTerminalConfig(void) {
-        struct termios oldattr, newattr;
+}
 
-        // Get the current terminal attributes
-        tcgetattr(STDIN_FILENO, &oldattr);
+void sirena() {
+    printf("Presione esc para finalizar la secuencia\n");
+    printf("Presione W para aumentar la velocidad\n");
+    printf("Presione S para disminuir la velocidad\n");
+    printf("Shift Lights:\n");
 
-        // Copy the current attributes to the new attributes
-        newattr = oldattr;
+    unsigned char sirena[] = {0x0, 0xF, 0xF, 0xF0, 0xF0, 0x0, 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80, 0x40, 0x20, 0x10, 0x8, 0x4, 0x2, 0x1};
 
-        // Disable canonical mode and echo
-        newattr.c_lflag &= ~(ICANON | ECHO);
-
-        // Apply the new attributes to the terminal
-        tcsetattr(STDIN_FILENO, TCSANOW, &newattr);
-
-        return oldattr;
-    }
-
-    void restoreTerminalConfig(struct termios oldattr) {
-
-        // Restore the original terminal attributes
-        tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
-    }
-
-    bool keyHit(int index) {
-
-        struct termios oldattr = modifyTerminalConfig();
-        int ch, oldf;
-
-        // Set the file descriptor of the standard input to non-blocking mode
-        oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
-        fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
-
-        // Attempt to read a character from the standard input
-        ch = getchar();
-
-        //W key is hit
-        if(ch == 119) {
-            if(delayTime[index] > 1000)
-            {
-                delayTime[index] = delayTime[index] - 1000;
-            }
-        }
-
-        //S key is hit
-        if(ch == 115) {
-            delayTime[index] = delayTime[index] + 1000;
-        }
-
-        restoreTerminalConfig(oldattr);
-
-        // Restore the file descriptor mode
-        fcntl(STDIN_FILENO, F_SETFL, oldf);
-
-        // If esc key is hit, return 1
-        if (ch == 27) {
-            ungetc(ch, stdin);
-            return 1;
-        }
-
-
-        // Esc wasn't hit, return 0
-        return 0;
-    }
-
-    void pinSetup(void) {
-        pioInit();
-
-        for (int i = 0; i < 8; i++) {
-            pinMode(led[i], OUTPUT);
-        }
-
-    }
-
-    void ledShow(unsigned char output) {
-
-        for (int j = 0; j < 8; j++) {
-            digitalWrite(led[j], (output >> j) & 1);
-        }
-
-    }
-
-    int delay(int index)
-    {
+    while (true) {
         int i;
-        unsigned int j;
-        for(i=delayTime[index]; i > 0; --i) /* repeat specified number of times */
 
-            if(keyHit(index)) {
-                return 0;
+        for(i = 0 ; i < 21 ; i++)
+        {
+            ledShow(sirena[i]);
+            disp_binary(sirena[i]);
+            if (delay(3) == 0) {
+                turnOff();
+                return;
             }
+        }
+    }
 
+}
+
+void secuencia_formula1() {
+    printf("Presione esc para finalizar la secuencia\n");
+    printf("Presione W para aumentar la velocidad\n");
+    printf("Presione S para disminuir la velocidad\n");
+    printf("Carrera de Formula 1:\n");
+
+    int leds[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+    int num_leds = sizeof(leds) / sizeof(leds[0]);
+
+    while (1) {
+        // Encender luces una por una
+        for (int i = 0; i < num_leds; i++) {
+            printf("\n");
+            for (int j = 0; j < num_leds; j++) {
+                if (j <= i) {
+                    printf("* ");
+                } else {
+                    printf("- ");
+                }
+            }
+            fflush(stdout);
+            if (delay(0) == 0) {
+                turnOff();
+                return;
+            }
+        }
+
+        // Esperar un tiempo aleatorio antes de apagar todas las luces
+        unsigned long int random_delay = get_random_delay(1000, 5000); // Retardo aleatorio entre 1 y 5 segundos
+        delay(random_delay);
+
+        // Apagar todas las luces
+        printf("\n");
+        for (int i = 0; i < num_leds; i++) {
+            printf("- ");
+        }
+        fflush(stdout);
+
+        // Esperar un poco antes de permitir reiniciar la secuencia
+        delay(1000);
+
+        printf("\nPresiona cualquier tecla para reiniciar la secuencia o 'q' para salir.\n");
+        if (keyHit(0)) {
+            turnOff();
+            return;
+        }
+    }
+}
+
+struct termios modifyTerminalConfig(void) {
+    struct termios oldattr, newattr;
+
+    // Get the current terminal attributes
+    tcgetattr(STDIN_FILENO, &oldattr);
+
+    // Copy the current attributes to the new attributes
+    newattr = oldattr;
+
+    // Disable canonical mode and echo
+    newattr.c_lflag &= ~(ICANON | ECHO);
+
+    // Apply the new attributes to the terminal
+    tcsetattr(STDIN_FILENO, TCSANOW, &newattr);
+
+    return oldattr;
+}
+
+void restoreTerminalConfig(struct termios oldattr) {
+
+    // Restore the original terminal attributes
+    tcsetattr(STDIN_FILENO, TCSANOW, &oldattr);
+}
+
+bool keyHit(int index) {
+
+    struct termios oldattr = modifyTerminalConfig();
+    int ch, oldf;
+
+    // Set the file descriptor of the standard input to non-blocking mode
+    oldf = fcntl(STDIN_FILENO, F_GETFL, 0);
+    fcntl(STDIN_FILENO, F_SETFL, oldf | O_NONBLOCK);
+
+    // Attempt to read a character from the standard input
+    ch = getchar();
+
+    //W key is hit
+    if(ch == 119) {
+        if(delayTime[index] > 1000)
+        {
+            delayTime[index] = delayTime[index] - 1000;
+        }
+    }
+
+    //S key is hit
+    if(ch == 115) {
+        delayTime[index] = delayTime[index] + 1000;
+    }
+
+    restoreTerminalConfig(oldattr);
+
+    // Restore the file descriptor mode
+    fcntl(STDIN_FILENO, F_SETFL, oldf);
+
+    // If esc key is hit, return 1
+    if (ch == 27) {
+        ungetc(ch, stdin);
         return 1;
     }
 
-    void clearInputBuffer() {
-        printf("Presione ENTER para confirmar\n");
-        int c;
-        while ((c = getchar()) != '\n' && c != EOF)
-        {
-            // Discard characters
+
+    // Esc wasn't hit, return 0
+    return 0;
+}
+
+void pinSetup(void) {
+    pioInit();
+
+    for (int i = 0; i < 8; i++) {
+        pinMode(led[i], OUTPUT);
+    }
+
+}
+
+void ledShow(unsigned char output) {
+
+    for (int j = 0; j < 8; j++) {
+        digitalWrite(led[j], (output >> j) & 1);
+    }
+
+}
+
+int delay(int index)
+{
+    int i;
+    unsigned int j;
+    for(i=delayTime[index]; i > 0; --i) /* repeat specified number of times */
+
+        if(keyHit(index)) {
+            return 0;
         }
-    }
 
-    void turnOff() {
-        unsigned char off = 0x0;
-        ledShow(off);
+    return 1;
+}
 
+void clearInputBuffer() {
+    printf("Presione ENTER para confirmar\n");
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF)
+    {
+        // Discard characters
     }
+}
+
+void turnOff() {
+    unsigned char off = 0x0;
+    ledShow(off);
+
+}
 }
