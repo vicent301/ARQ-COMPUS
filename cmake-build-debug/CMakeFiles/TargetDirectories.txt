@@ -1,0 +1,3 @@
+C:/Escritorio/ARQ-COMPUS/cmake-build-debug/CMakeFiles/ARQ_COMPUS.dir
+C:/Escritorio/ARQ-COMPUS/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Escritorio/ARQ-COMPUS/cmake-build-debug/CMakeFiles/rebuild_cache.dir
