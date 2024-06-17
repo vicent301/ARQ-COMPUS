@@ -12,35 +12,19 @@
 
 //FUNCIONES
 void disp_binary(int);
-
 void getPassword(char *password);
-
 void menu();
-
 void autoFantastico();
-
 void choque();
-
-void sirena();
-
-void secuencia_formula1();
-
+//void sirena();
+//void secuencia_formula1();
 struct termios modifyTerminalConfig(void);
-
 void restoreTerminalConfig(struct termios);
-
 bool keyHit(int index);
-
 void pinSetup(void);
-
-
-
 int delay(int index);
-
 void clearInputBuffer();
-
 void turnOff();
-//
 
 const unsigned char led[] = {14, 15, 18, 23, 24, 25, 8, 7};
 int delayTime[] = {10000, 10000, 10000, 10000};
@@ -85,44 +69,21 @@ void disp_binary(int i) {
 }
 
 void getPassword(char *password) {
-
     struct termios oldattr = modifyTerminalConfig();
 
     printf("Ingrese su clave: ");
-
-    // Read the password
     for (int i = 0; i < PASSWORD_LENGTH; i++) {
         password[i] = getchar();
-        printf("*"); // Print asterisk
+        printf("*");
         fflush(stdout);
     }
 
     restoreTerminalConfig(oldattr);
-
-    printf("\n");
-}
-
-void getPassword(char *password) {
-
-    struct termios oldattr = modifyTerminalConfig();
-
-    printf("Ingrese su clave: ");
-
-    // Read the password
-    for (int i = 0; i < PASSWORD_LENGTH; i++) {
-        password[i] = getchar();
-        printf("*"); // Print asterisk
-        fflush(stdout);
-    }
-
-    restoreTerminalConfig(oldattr);
-
     printf("\n");
 }
 
 void menu() {
     int opcion;
-
     do {
         clearInputBuffer();
         printf("Seleccione una opcion:\n");
@@ -189,6 +150,7 @@ void autoFantastico() {
 
     }
 }
+
 void choque() {
     printf("Presione esc para finalizar la secuencia\n");
     printf("Presione W para aumentar la velocidad\n");
@@ -212,11 +174,9 @@ void choque() {
                 return;
             }
         }
-
     }
-
 }
-
+/*
 void sirena() {
     printf("Presione esc para finalizar la secuencia\n");
     printf("Presione W para aumentar la velocidad\n");
@@ -226,10 +186,7 @@ void sirena() {
     unsigned char sirena[] = {0x0, 0xF, 0xF, 0xF0, 0xF0, 0x0, 0x1, 0x2, 0x4, 0x8, 0x10, 0x20, 0x40, 0x80, 0x40, 0x20, 0x10, 0x8, 0x4, 0x2, 0x1};
 
     while (true) {
-        int i;
-
-        for(i = 0 ; i < 21 ; i++)
-        {
+        for(int i = 0 ; i < 21 ; i++) {
             ledShow(sirena[i]);
             disp_binary(sirena[i]);
             if (delay(3) == 0) {
@@ -238,58 +195,39 @@ void sirena() {
             }
         }
     }
-
 }
-
+*/
+/*
 void secuencia_formula1() {
     printf("Presione esc para finalizar la secuencia\n");
     printf("Presione W para aumentar la velocidad\n");
     printf("Presione S para disminuir la velocidad\n");
     printf("Carrera de Formula 1:\n");
 
-    int leds[] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08};
+    int leds[] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
     int num_leds = sizeof(leds) / sizeof(leds[0]);
 
     while (1) {
-        // Encender luces una por una
+        // Encender luces de izquierda a derecha
         for (int i = 0; i < num_leds; i++) {
-            printf("\n");
-            for (int j = 0; j < num_leds; j++) {
-                if (j <= i) {
-                    printf("* ");
-                } else {
-                    printf("- ");
-                }
-            }
-            fflush(stdout);
+            ledShow(leds[i]);
             if (delay(0) == 0) {
                 turnOff();
                 return;
             }
         }
 
-        // Esperar un tiempo aleatorio antes de apagar todas las luces
-        unsigned long int random_delay = get_random_delay(1000, 5000); // Retardo aleatorio entre 1 y 5 segundos
-        delay(random_delay);
-
-        // Apagar todas las luces
-        printf("\n");
-        for (int i = 0; i < num_leds; i++) {
-            printf("- ");
-        }
-        fflush(stdout);
-
-        // Esperar un poco antes de permitir reiniciar la secuencia
-        delay(1000);
-
-        printf("\nPresiona cualquier tecla para reiniciar la secuencia o 'q' para salir.\n");
-        if (keyHit(0)) {
-            turnOff();
-            return;
+        // Encender luces de derecha a izquierda
+        for (int i = num_leds - 2; i >= 0; i--) {
+            ledShow(leds[i]);
+            if (delay(0) == 0) {
+                turnOff();
+                return;
+            }
         }
     }
 }
-
+*/
 struct termios modifyTerminalConfig(void) {
     struct termios oldattr, newattr;
 
@@ -301,6 +239,7 @@ struct termios modifyTerminalConfig(void) {
 
     // Disable canonical mode and echo
     newattr.c_lflag &= ~(ICANON | ECHO);
+
 
     // Apply the new attributes to the terminal
     tcsetattr(STDIN_FILENO, TCSANOW, &newattr);
